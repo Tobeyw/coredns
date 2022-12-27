@@ -61,4 +61,7 @@ var Directives = []string{
 	"on",
 	"sign",
 	"view",
+	"nns",
+	"healthchecker",
+	"geodns",
 }
