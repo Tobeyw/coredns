@@ -109,7 +109,7 @@ func (n NNS) prepareName(name string) string {
 func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	name := n.prepareName(state.QName())
 	dd := state.QType()
-	if dd == dns.TypeCNAME {
+	if dd == dns.TypeTXT {
 		name = strings.TrimPrefix(name, "_dnslink.")
 	}
 	log.Info("state.Type:", dd)
@@ -119,8 +119,12 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	}
 	fmt.Println("nns type: ", nnsType)
 	//resolved, err := resolve(n.Client, n.ContractHash, name, nnsType)
-	allrecord, err := getAllRecords(n.Client, n.ContractHash, name)
 
+	allrecord, err := getAllRecords(n.Client, n.ContractHash, name)
+	//resolved = resolved + dot
+	if err != nil {
+		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
+	}
 	var resolved string
 	var reType uint16
 	//
@@ -146,11 +150,6 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 			reType = dns.TypeAAAA
 			break
 		}
-	}
-
-	//resolved = resolved + dot
-	if err != nil {
-		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
 	}
 
 	//TEST
