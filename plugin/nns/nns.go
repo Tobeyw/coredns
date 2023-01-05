@@ -109,7 +109,9 @@ func (n NNS) prepareName(name string) string {
 func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	name := n.prepareName(state.QName())
 	dd := state.QType()
-
+	if dd == dns.TypeCNAME {
+		name = strings.TrimPrefix(name, "_dnslink.")
+	}
 	log.Info("state.Type:", dd)
 	nnsType, err := getNNSType(state)
 	if err != nil {
@@ -159,7 +161,9 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	} else if dd == dns.TypeCNAME {
 		resolved = "cloudflare-ipfs.com"
 	} else if dd == dns.TypeTXT {
+		log.Info("dnslink:", resolved)
 		resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
+		log.Info("dnslink:", resolved)
 	}
 
 	hdr := dns.RR_Header{Name: state.Name(), Rrtype: reType, Class: state.QClass(), Ttl: 3600}
