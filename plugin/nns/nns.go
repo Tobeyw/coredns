@@ -159,9 +159,11 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 
 	} else if dd == dns.TypeCNAME {
 		resolved = "cloudflare-ipfs.com"
+		reType = dns.TypeCNAME
 	} else if dd == dns.TypeTXT {
 		log.Info("dnslink:", resolved)
 		resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
+		reType = dns.TypeTXT
 		log.Info("dnslink:", resolved)
 	}
 	fmt.Println(dd == dns.TypeTXT)
