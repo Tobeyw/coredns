@@ -155,7 +155,7 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 
 	//TEST
 	if dd == dns.TypeA {
-		resolved = ""
+
 	} else if dd == dns.TypeCNAME {
 		resolved = "cloudflare-ipfs.com"
 	} else if dd == dns.TypeTXT {
