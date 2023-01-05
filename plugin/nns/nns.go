@@ -108,7 +108,7 @@ func (n NNS) prepareName(name string) string {
 
 func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	name := n.prepareName(state.QName())
-	dd := state.Type()
+	dd := state.QType()
 
 	log.Info("state.Type:", dd)
 	nnsType, err := getNNSType(state)
@@ -121,6 +121,8 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 
 	var resolved string
 	var reType uint16
+	//
+
 	for _, item := range allrecord {
 		if item.Type == nns.A {
 			resolved = item.Data
@@ -143,6 +145,7 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 			break
 		}
 	}
+
 	ip := net.ParseIP(resolved)
 	fmt.Println(ip)
 	//resolved = resolved + dot
@@ -150,7 +153,16 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
 	}
 
-	hdr := dns.RR_Header{Name: state.Name(), Rrtype: reType, Class: state.QClass(), Ttl: 0}
+	//TEST
+	if dd == dns.TypeA {
+		resolved = ""
+	} else if dd == dns.TypeCNAME {
+		resolved = "cloudflare-ipfs.com"
+	} else if dd == dns.TypeTXT {
+		resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
+	}
+
+	hdr := dns.RR_Header{Name: state.Name(), Rrtype: reType, Class: state.QClass(), Ttl: 3600}
 
 	var arr []string
 	arr = append(arr, resolved)
