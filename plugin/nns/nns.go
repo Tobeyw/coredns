@@ -155,12 +155,12 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	//TEST
 
 	fmt.Println("nns resolved:", resolved)
-	if dd == dns.TypeA {
+	if reType == dns.TypeA {
 
-	} else if dd == dns.TypeCNAME {
+	} else if reType == dns.TypeCNAME {
 		resolved = "cloudflare-ipfs.com"
 		reType = dns.TypeCNAME
-	} else if dd == dns.TypeTXT {
+	} else if reType == dns.TypeTXT {
 		log.Info("dnslink:", resolved)
 		resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
 		reType = dns.TypeTXT
