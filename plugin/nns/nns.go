@@ -148,14 +148,14 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 		}
 	}
 
-	ip := net.ParseIP(resolved)
-	fmt.Println(ip)
 	//resolved = resolved + dot
 	if err != nil {
 		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
 	}
 
 	//TEST
+
+	fmt.Println("nns resolved:", resolved)
 	if dd == dns.TypeA {
 
 	} else if dd == dns.TypeCNAME {
@@ -165,7 +165,8 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 		resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
 		log.Info("dnslink:", resolved)
 	}
-
+	fmt.Println(dd == dns.TypeTXT)
+	fmt.Println("nns resolved2:", resolved)
 	hdr := dns.RR_Header{Name: state.Name(), Rrtype: reType, Class: state.QClass(), Ttl: 3600}
 
 	var arr []string
