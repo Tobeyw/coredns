@@ -145,12 +145,14 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 				resolved = item.Data
 				reType = dns.TypeTXT
 			} else {
-				cname := "cloudflare-ipfs.com"
-				result, err := dns.NewRR(fmt.Sprintf("%s 3600 IN CNAME \"dnslink=%s\"", state.Name(), cname))
-				if err != nil {
-					log.Info("dnslink gateway error:", err)
-				}
-				res = append(res, result)
+				//cname := "cloudflare-ipfs.com"
+				//result, err := dns.NewRR(fmt.Sprintf("%s 3600 IN CNAME \"dnslink=%s\"", state.Name(), cname))
+				//if err != nil {
+				//	log.Info("dnslink gateway error:", err)
+				//}
+				//res = append(res, result)
+				resolved = "cloudflare-ipfs.com"
+				reType = dns.TypeCNAME
 			}
 			break
 		}
