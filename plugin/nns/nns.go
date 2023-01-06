@@ -128,7 +128,7 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	var resolved string
 	var reType uint16
 	//
-
+	res := make([]dns.RR, 0)
 	for _, item := range allrecord {
 		if item.Type == nns.A {
 			resolved = item.Data
@@ -141,8 +141,17 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 			break
 		}
 		if item.Type == nns.TXT {
-			resolved = item.Data
-			reType = dns.TypeTXT
+			if dd == dns.TypeTXT {
+				resolved = item.Data
+				reType = dns.TypeTXT
+			} else {
+				cname := "cloudflare-ipfs.com"
+				result, err := dns.NewRR(fmt.Sprintf("%s 3600 IN CNAME \"dnslink=%s\"", state.Name(), cname))
+				if err != nil {
+					log.Info("dnslink gateway error:", err)
+				}
+				res = append(res, result)
+			}
 			break
 		}
 		if item.Type == nns.AAAA {
@@ -153,27 +162,28 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	}
 
 	//TEST
-
-	fmt.Println("nns resolved:", resolved)
-	if reType == dns.TypeA {
-
-	} else if reType == dns.TypeCNAME {
-		resolved = "cloudflare-ipfs.com"
-		reType = dns.TypeCNAME
-	} else if reType == dns.TypeTXT {
-		log.Info("dnslink:", resolved)
-		resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
-		reType = dns.TypeTXT
-		log.Info("dnslink:", resolved)
-	}
-	fmt.Println(dd == dns.TypeTXT)
-	fmt.Println("nns resolved2:", resolved)
+	//
+	//
+	//fmt.Println("nns resolved:", resolved)
+	//if reType == dns.TypeA {
+	//
+	//} else if reType == dns.TypeCNAME {
+	//	resolved = "cloudflare-ipfs.com"
+	//	reType = dns.TypeCNAME
+	//} else if reType == dns.TypeTXT {
+	//	log.Info("dnslink:", resolved)
+	//	resolved = "dnslink=/ipfs/Qmc2o4ZNtbinEmRF9UGouBYTuiHbtCSShMFRbBY5ZiZDmU"
+	//	reType = dns.TypeTXT
+	//	log.Info("dnslink:", resolved)
+	//}
+	//fmt.Println(dd == dns.TypeTXT)
+	//fmt.Println("nns resolved2:", resolved)
 	hdr := dns.RR_Header{Name: state.Name(), Rrtype: reType, Class: state.QClass(), Ttl: 3600}
 
 	var arr []string
 	arr = append(arr, resolved)
-	res, err := formResRecords(hdr, arr)
-
+	res1, err := formResRecords(hdr, arr)
+	res = append(res, res1...)
 	if err != nil {
 		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
 	}
