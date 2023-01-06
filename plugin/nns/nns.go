@@ -151,7 +151,7 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 				//	log.Info("dnslink gateway error:", err)
 				//}
 				//res = append(res, result)
-				resolved = "cloudflare-ipfs.com"
+				resolved = "dweb.link"
 				reType = dns.TypeCNAME
 			}
 			break
