@@ -146,7 +146,7 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 					resolved = item.Data
 					reType = dns.TypeTXT
 				} else {
-					resolved = item.Data
+					resolved = "dweb.link"
 					reType = dns.TypeCNAME
 				}
 
@@ -159,10 +159,10 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 				//res = append(res, result)
 				//resolved = "dweb.link"
 				//reType = dns.TypeCNAME
+				resolved = "dweb.link"
+				reType = dns.TypeCNAME
 			}
 
-			resolved = "dweb.link"
-			reType = dns.TypeCNAME
 			break
 		}
 		if item.Type == nns.AAAA {
