@@ -142,7 +142,8 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 		}
 		if item.Type == nns.TXT {
 			if dd == dns.TypeTXT {
-				if strings.HasPrefix(name, "_dnslink.") {
+				if strings.HasPrefix(state.QName(), "_dnslink.") {
+					log.Info("_dnslink.....")
 					resolved = item.Data
 					reType = dns.TypeTXT
 				} else {
@@ -152,7 +153,6 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 
 			} else {
 				//cname := "cloudflare-ipfs.com"
-				//result, err := dns.NewRR(fmt.Sprintf("%s 3600 IN CNAME \"dnslink=%s\"", state.Name(), cname))
 				//if err != nil {
 				//	log.Info("dnslink gateway error:", err)
 				//}
