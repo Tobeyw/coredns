@@ -109,66 +109,71 @@ func (n NNS) prepareName(name string) string {
 func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	name := n.prepareName(state.QName())
 	dd := state.QType()
-	if dd == dns.TypeTXT {
-		name = strings.TrimPrefix(name, "_dnslink.")
-	}
-	log.Info("state.Type:", dd)
-	nnsType, err := getNNSType(state)
-	if err != nil {
-		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
-	}
-	fmt.Println("nns type: ", nnsType)
-	//resolved, err := resolve(n.Client, n.ContractHash, name, nnsType)
-
-	allrecord, err := getAllRecords(n.Client, n.ContractHash, name)
-	//resolved = resolved + dot
-	if err != nil {
-		return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
-	}
 	var resolved string
 	var reType uint16
-	//
 	res := make([]dns.RR, 0)
-	for _, item := range allrecord {
-		if item.Type == nns.A {
-			resolved = item.Data
-			reType = dns.TypeA
-			break
+	// 处理neo.ongoing.club
+	if name == "_dnsauth.xiao" {
+		if dd == dns.TypeTXT {
+			resolved = "202303150000003qd2yrngn345pgg36oqhx9ps7q8v53j8tgpqzapde9uo88ekvu"
+			reType = dns.TypeTXT
 		}
-		if item.Type == nns.CNAME {
-			resolved = item.Data
-			reType = dns.TypeCNAME
-			break
+	} else {
+		nnsType, err := getNNSType(state)
+		if err != nil {
+			return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
 		}
-		if item.Type == nns.TXT {
-			if dd == dns.TypeTXT {
-				if strings.HasPrefix(state.QName(), "_dnslink.") {
-					log.Info("_dnslink.....")
-					resolved = item.Data
-					reType = dns.TypeTXT
+		fmt.Println("nns type: ", nnsType)
+
+		allrecord, err := getAllRecords(n.Client, n.ContractHash, name)
+
+		if err != nil {
+			return nil, fmt.Errorf("cannot resolve '%s' (type %d) as '%s': %w", state.QName(), state.QType(), name, err)
+		}
+
+		//
+
+		for _, item := range allrecord {
+			if item.Type == nns.A {
+				resolved = item.Data
+				reType = dns.TypeA
+				break
+			}
+			if item.Type == nns.CNAME {
+				resolved = item.Data
+				reType = dns.TypeCNAME
+				break
+			}
+			if item.Type == nns.TXT {
+				if dd == dns.TypeTXT {
+					if strings.HasPrefix(state.QName(), "_dnslink.") {
+						log.Info("_dnslink.....")
+						resolved = item.Data
+						reType = dns.TypeTXT
+					} else {
+						resolved = "dweb.link"
+						reType = dns.TypeCNAME
+					}
+
 				} else {
+					//cname := "cloudflare-ipfs.com"
+					//if err != nil {
+					//	log.Info("dnslink gateway error:", err)
+					//}
+					//res = append(res, result)
+					//resolved = "dweb.link"
+					//reType = dns.TypeCNAME
 					resolved = "dweb.link"
 					reType = dns.TypeCNAME
 				}
 
-			} else {
-				//cname := "cloudflare-ipfs.com"
-				//if err != nil {
-				//	log.Info("dnslink gateway error:", err)
-				//}
-				//res = append(res, result)
-				//resolved = "dweb.link"
-				//reType = dns.TypeCNAME
-				resolved = "dweb.link"
-				reType = dns.TypeCNAME
+				break
 			}
-
-			break
-		}
-		if item.Type == nns.AAAA {
-			resolved = item.Data
-			reType = dns.TypeAAAA
-			break
+			if item.Type == nns.AAAA {
+				resolved = item.Data
+				reType = dns.TypeAAAA
+				break
+			}
 		}
 	}
 
@@ -189,7 +194,7 @@ func (n NNS) resolveRecords(state request.Request) ([]dns.RR, error) {
 	//}
 	//fmt.Println(dd == dns.TypeTXT)
 	//fmt.Println("nns resolved2:", resolved)
-	hdr := dns.RR_Header{Name: state.Name(), Rrtype: reType, Class: state.QClass(), Ttl: 3600}
+	hdr := dns.RR_Header{Name: state.QName(), Rrtype: reType, Class: state.QClass(), Ttl: 3600}
 
 	var arr []string
 	arr = append(arr, resolved)
